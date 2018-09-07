@@ -11,17 +11,17 @@
     "theia-extension"
   ],
   "dependencies": {
-    "@theia/core": "next",
-    "@theia/editor": "next",
-    "@theia/filesystem": "next",
-    "@theia/languages": "next",
-    "@theia/monaco": "next",
+    "@theia/core": "latest",
+    "@theia/editor": "latest",
+    "@theia/filesystem": "latest",
+    "@theia/languages": "latest",
+    "@theia/monaco": "latest",
     "glsp-sprotty": "0.4.2"
   },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
     "clean": "rimraf lib",
-    "build": "tsc && yarn lint",
+    "build": "tsc ",
     "lint": "tslint -c ./tslint.json --project ./tsconfig.json",
     "watch": "tsc -w",
     "test": "mocha --opts ./mocha.opts \"./src/**/*.spec.?(ts|tsx)\""
