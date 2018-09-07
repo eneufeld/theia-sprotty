@@ -3,9 +3,11 @@
 *
 * Licensed under the Apache License, Version 2.0 (the "License") you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+*
+* Modifications: Copyright (C) 2018 Tobias Ortmayr<tormayr@eclipsesource.com>
 */
 
-import { ActionMessage, ExportSvgAction, ServerStatusAction } from 'sprotty/lib'
+import { ActionMessage, ExportSvgAction, ServerStatusAction } from 'glsp-sprotty/lib'
 import { TheiaDiagramServer } from './theia-diagram-server'
 import { NotificationType } from 'vscode-jsonrpc/lib/messages'
 import { Location } from 'vscode-languageserver-types'
@@ -24,6 +26,15 @@ const acceptMessageType = new NotificationType<ActionMessage, void>('diagram/acc
 const didCloseMessageType = new NotificationType<string, void>('diagram/didClose')
 const openInTextEditorMessageType = new NotificationType<OpenInTextEditorMessage, void>('diagram/openInTextEditor')
 
+export interface TheiaSprottyConnector {
+    connect(diagramServer: TheiaDiagramServer): void
+    disconnect(diagramServer: TheiaDiagramServer): void
+    save(uri: string, action: ExportSvgAction): void
+    openInTextEditor(message: OpenInTextEditorMessage): void
+    showStatus(widgetId: string, status: ServerStatusAction): void
+    sendMessage(message: ActionMessage): void
+    onMessageReceived(message: ActionMessage): void
+}
 /**
  * Connects sprotty DiagramServers to a Theia LanguageClientContribution.
  *
@@ -34,17 +45,17 @@ const openInTextEditorMessageType = new NotificationType<OpenInTextEditorMessage
  * diagram) and a specific language client from the Theia DI container
  * (one per application).
  */
-export class TheiaSprottyConnector {
+export class LSPTheiaSprottyConnector implements TheiaSprottyConnector {
 
     private servers: TheiaDiagramServer[] = []
 
     constructor(private languageClientContribution: LanguageClientContribution,
-                private fileSaver: TheiaFileSaver,
-                private editorManager: EditorManager,
-                private diagramWidgetRegistry: DiagramWidgetRegistry) {
+        private fileSaver: TheiaFileSaver,
+        private editorManager: EditorManager,
+        private diagramWidgetRegistry: DiagramWidgetRegistry) {
         this.languageClientContribution.languageClient.then(
             lc => {
-                lc.onNotification(acceptMessageType, this.receivedThroughLsp.bind(this))
+                lc.onNotification(acceptMessageType, this.onMessageReceived.bind(this))
                 lc.onNotification(openInTextEditorMessageType, this.openInTextEditor.bind(this))
             }
         ).catch(
@@ -97,11 +108,11 @@ export class TheiaSprottyConnector {
             widget.setStatus(status)
     }
 
-    sendThroughLsp(message: ActionMessage) {
+    sendMessage(message: ActionMessage) {
         this.languageClientContribution.languageClient.then(lc => lc.sendNotification(acceptMessageType, message))
     }
 
-    receivedThroughLsp(message: ActionMessage) {
+    onMessageReceived(message: ActionMessage) {
         this.servers.forEach(element => {
             element.messageReceived(message)
         })

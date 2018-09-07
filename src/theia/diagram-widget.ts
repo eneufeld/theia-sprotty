@@ -3,9 +3,13 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License") you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Modifications: Copyright (C) 2018 Tobias Ortmayr<tormayr@eclipsesource.com>
  */
 
-import { RequestModelAction, CenterAction, InitializeCanvasBoundsAction, ModelSource, ServerStatusAction, IActionDispatcher } from 'sprotty/lib';
+
+
+import { RequestModelAction, CenterAction, InitializeCanvasBoundsAction, ModelSource, ServerStatusAction, IActionDispatcher } from 'glsp-sprotty/lib';
 import { Widget } from "@phosphor/widgets"
 import { Message } from "@phosphor/messaging/lib"
 import URI from "@theia/core/lib/common/uri"
@@ -62,13 +66,16 @@ export class DiagramWidget extends BaseWidget {
         this.statusMessageDiv = document.createElement("div")
         this.statusMessageDiv.setAttribute('class', 'sprotty-status-message')
         statusDiv.appendChild(this.statusMessageDiv)
+        this.sendInitialRequestMessages()
 
-        this.modelSource.handle(new RequestModelAction({
-            sourceUri: this.uri.toString(),
-            diagramType: this.diagramType
-        }))
     }
 
+    protected sendInitialRequestMessages() {
+        this.modelSource.handle(new RequestModelAction({
+            sourceUri: this.uri.toString(),
+            diagramType: this.diagramType,
+        }))
+    }
     protected getBoundsInPage(element: Element) {
         const bounds = element.getBoundingClientRect()
         return {

@@ -3,13 +3,15 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License") you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Modifications: Copyright (C) 2018 Tobias Ortmayr<tormayr@eclipsesource.com>
  */
 
 import {
     ILogger, SelectCommand, ActionHandlerRegistry, IActionDispatcher, SModelStorage, TYPES,
     ViewerOptions, DiagramServer, ActionMessage, ExportSvgAction, RequestModelAction, Action,
     ICommand, ServerStatusAction
-} from 'sprotty/lib'
+} from 'glsp-sprotty/lib'
 import { TheiaSprottyConnector } from './theia-sprotty-connector'
 import { injectable, inject } from "inversify"
 
@@ -26,13 +28,13 @@ export class TheiaDiagramServer extends DiagramServer {
 
     protected connector: Promise<TheiaSprottyConnector>
     private resolveConnector: (server: TheiaSprottyConnector) => void
-    private sourceUri: string
+    protected sourceUri: string
 
     constructor(@inject(TYPES.IActionDispatcher) public actionDispatcher: IActionDispatcher,
-                @inject(TYPES.ActionHandlerRegistry) actionHandlerRegistry: ActionHandlerRegistry,
-                @inject(TYPES.ViewerOptions) viewerOptions: ViewerOptions,
-                @inject(TYPES.SModelStorage) storage: SModelStorage,
-                @inject(TYPES.ILogger) logger: ILogger) {
+        @inject(TYPES.ActionHandlerRegistry) actionHandlerRegistry: ActionHandlerRegistry,
+        @inject(TYPES.ViewerOptions) viewerOptions: ViewerOptions,
+        @inject(TYPES.SModelStorage) storage: SModelStorage,
+        @inject(TYPES.ILogger) logger: ILogger) {
         super(actionDispatcher, actionHandlerRegistry, viewerOptions, storage, logger)
         this.waitForConnector()
     }
@@ -55,9 +57,10 @@ export class TheiaDiagramServer extends DiagramServer {
         registry.register(SelectCommand.KIND, this)
     }
 
-    handle(action: Action): void | ICommand {
+    handle(action: Action): void | ICommand {
         if (action instanceof RequestModelAction && action.options !== undefined)
             this.sourceUri = action.options.sourceUri
+
         return super.handle(action)
     }
 
@@ -72,7 +75,7 @@ export class TheiaDiagramServer extends DiagramServer {
     }
 
     sendMessage(message: ActionMessage) {
-        this.connector.then(c => c.sendThroughLsp(message))
+        this.connector.then(c => c.sendMessage(message))
     }
 
     /**

@@ -14,6 +14,8 @@ import { CommandContribution, MenuContribution } from '@theia/core/lib/common'
 import { DiagramKeybindingContext, DiagramKeybindingContribution } from './diagram-keybinding'
 import { KeybindingContext, KeybindingContribution } from '@theia/core/lib/browser';
 
+import { OP_TYPES, OperationServiceImpl } from 'glsp-sprotty/lib'
+
 export default new ContainerModule(bind => {
     bind(DiagramWidgetRegistry).toSelf().inSingletonScope()
     bind(DiagramConfigurationRegistry).toSelf().inSingletonScope()
@@ -23,4 +25,5 @@ export default new ContainerModule(bind => {
     bind(DiagramKeybindingContext).toSelf().inSingletonScope()
     bind(KeybindingContext).to(DiagramKeybindingContext).inSingletonScope()
     bind(KeybindingContribution).to(DiagramKeybindingContribution).inSingletonScope()
+    bind(OP_TYPES.OperationService).to(OperationServiceImpl).inSingletonScope()
 })
