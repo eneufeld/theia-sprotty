@@ -9,9 +9,7 @@
 
 import { ActionMessage, ExportSvgAction, ServerStatusAction } from 'glsp-sprotty/lib'
 import { TheiaDiagramServer } from './theia-diagram-server'
-import { NotificationType } from 'vscode-jsonrpc/lib/messages'
-import { Location } from 'vscode-languageserver-types'
-import { LanguageClientContribution } from '@theia/languages/lib/browser'
+import { LanguageClientContribution, Location, NotificationType } from '@theia/languages/lib/browser'
 import { EditorManager } from '@theia/editor/lib/browser'
 import { TheiaFileSaver } from './theia-file-saver'
 import { DiagramWidgetRegistry } from '../theia/diagram-widget-registry'
